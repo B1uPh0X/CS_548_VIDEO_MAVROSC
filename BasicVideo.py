@@ -93,7 +93,7 @@ def main():
     # Create window ahead of time
     cv2.namedWindow(windowName)
     
-    # While not closed...
+    # While not closde...
     key = -1
     while key == -1:
         # Get next frame from capture
