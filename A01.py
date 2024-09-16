@@ -52,7 +52,7 @@ def display_frames(all_frames, title, fps=30):
     return 0
 
 def save_frames(all_frames, output_dir, basename, fps=30):
-    foldername = basename+ " " +str(fps)
+    foldername = basename+ "_" +str(fps)
     path = os.path.join(output_dir,foldername)
     if os.path.exists(path):
         shutil.rmtree(path)
