@@ -4,6 +4,7 @@ import numpy as np
 import torch
 import pandas
 import sklearn
+from pathlib import Path
 import os
 import shutil
 
@@ -77,15 +78,25 @@ def change_fps(input_frames, old_fps, new_fps):
     return output_frames
 
 def main():
-    x=0
-    while x<100:
-        old = 20
-        new = 30
-        y = (old*x)/new
-        print("x " + str(x))
-        print("i: " + str(y))
-        print("i2: " + str(int(y)))
-        x = x+1
-    print("job done")
+    if (len(sys.argv)<3):
+        print("ERROR: invalid args")
+        exit(1)
+    input_path = sys.argv[1]
+    output_path = sys.argv[2]
+    filename = Path(input_path).stem
+    fps=30
+    if (len(sys.argv)>3):
+        fps = sys.argv[3]
+    vFrames = load_video_as_frames(input_path)
+    if vFrames == None:
+        print("ERROR: no frames")
+        exit(1)
+    display_frames(vFrames, "Input Video", 30)
+    outFrames = change_fps(vFrames,30,fps)
+    display_frames(outFrames, "Output Video", 30)
+    save_frames(outFrames, output_path, filename, fps)
 
     return 0
+
+if __name__=="__main__": 
+    main()
