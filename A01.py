@@ -66,9 +66,26 @@ def save_frames(all_frames, output_dir, basename, fps=30):
     return 0
 
 def change_fps(input_frames, old_fps, new_fps):
-    
-    return 0
+    old_frame_cnt = len(input_frames)
+    new_frame_cnt = int((new_fps*old_frame_cnt)/old_fps)
+    output_frames = []
+    x=0
+    while x<new_frame_cnt:
+        y=int((old_fps*x)/new_fps)
+        output_frames.append(input_frames[y])
+        x=x+1
+    return output_frames
 
 def main():
-    load_video_as_frames("noice.mp4")
+    x=0
+    while x<100:
+        old = 20
+        new = 30
+        y = (old*x)/new
+        print("x " + str(x))
+        print("i: " + str(y))
+        print("i2: " + str(int(y)))
+        x = x+1
+    print("job done")
+
     return 0
