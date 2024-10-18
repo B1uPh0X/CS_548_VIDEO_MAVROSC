@@ -47,7 +47,7 @@ def compute_video_derivatives(video_frames, size):
         return None
     
     for i in video_frames:
-        cur_frame = (cv2.cvtColor(i,cv2.COLOR_RGB2GRAY).astype("float64"))/255.0
+        cur_frame = (cv2.cvtColor(i,cv2.COLOR_BGR2GRAY).astype("float64"))/255.0
         if prev_frame is None:
             prev_frame = cur_frame
         fx = (cv2.filter2D(prev_frame, -1, kfx) + cv2.filter2D(cur_frame, -1, kfx))
@@ -100,9 +100,50 @@ def compute_one_optical_flow_horn_shunck(fx, fy, ft, max_iter, max_error, weight
     return combo 
 
 def compute_one_optical_flow_lucas_kanade(fx, fy, ft, win_size):
-    return None
+    
+    u = np.zeros((fx.shape, fx.shape), dtype="float64")
+    v = np.zeros((fx.shape, fx.shape), dtype="float64")
+
+    height, width = fx.shape
+    
+    for x in range(0, width, win_size):
+        for y in range(0, height, win_size):
+
+            Ex = min(x + win_size, width)
+            Ey = min(y + win_size, height)
+
+            fxB = fx[y:Ey, x:Ex]
+            fyB = fy[y:Ey, x:Ex]
+            ftB = ft[y:Ey, x:Ex]
+
+            fxfx = np.sum(fxB * fxB)
+            fyfy = np.sum(fyB * fyB)
+            fxfy = np.sum(fxB * fyB)
+            fxft = np.sum(fxB * ftB)
+            fyft = np.sum(fyB * ftB)
+
+            de = ((fxfx * fyfy) - (fxfy * fxfy))
+            if de > 1e-6:
+                u[y:Ey, x:Ex] = ((((fyfy)*(fxft))-((fxfy)*(fyft)))/de)
+                v[y:Ey, x:Ex] = ((((fxfx)*(fyft))-((fxfy)*(fxft)))/de)
+            else:
+                u = u
+                v = v
+    
+    flo = np.stack((u, v, np.zeros_like(u)), axis=-1)
+
+    return flo
 def compute_optical_flow(video_frames, method=OPTICAL_FLOW.HORN_SHUNCK, max_iter=10, max_error=1e-4, horn_weight=1.0, kanade_win_size=19):
-    return None
+    if method==OPTICAL_FLOW.HORN_SHUNK:
+        dsize=2
+        der=compute_video_derivatives(video_frames, dsize)
+        return compute_one_optical_flow_horn_shunck(der[0], der[1], der[2], max_iter, max_error, horn_weight)
+    elif method==OPTICAL_FLOW.LUCAS_KANADE:
+        dsize=3
+        der=compute_video_derivatives(video_frames, dsize)
+        return compute_one_optical_flow_lucas_kanade(der[0], der[1], der[2], kanade_win_size)
+    else:
+        return None
 def main():      
     # Load video frames 
     video_filepath = "assign02/input/simple/image_%07d.png" 
