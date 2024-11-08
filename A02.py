@@ -97,12 +97,15 @@ def compute_one_optical_flow_horn_shunck(fx, fy, ft, max_iter, max_error, weight
     extra = np.zeros_like(u)
     combo = np.stack([u,v,extra], axis=-1)
     
-    return combo 
+    # DEBUG
+    error = 0
+    
+    return combo, error, iter_cnt
 
 def compute_one_optical_flow_lucas_kanade(fx, fy, ft, win_size):
     
-    u = np.zeros((fx.shape, fx.shape), dtype="float64")
-    v = np.zeros((fx.shape, fx.shape), dtype="float64")
+    u = np.zeros(fx.shape, dtype="float64")
+    v = np.zeros(fx.shape, dtype="float64")
 
     height, width = fx.shape
     
@@ -123,7 +126,7 @@ def compute_one_optical_flow_lucas_kanade(fx, fy, ft, win_size):
             fyft = np.sum(fyB * ftB)
 
             de = ((fxfx * fyfy) - (fxfy * fxfy))
-            if de > 1e-6:
+            if de >= 1e-6:
                 u[y:Ey, x:Ex] = ((((fyfy)*(fxft))-((fxfy)*(fyft)))/de)
                 v[y:Ey, x:Ex] = ((((fxfx)*(fyft))-((fxfy)*(fxft)))/de)
             else:
@@ -137,13 +140,20 @@ def compute_optical_flow(video_frames, method=OPTICAL_FLOW.HORN_SHUNCK, max_iter
     if method==OPTICAL_FLOW.HORN_SHUNK:
         dsize=2
         der=compute_video_derivatives(video_frames, dsize)
-        return compute_one_optical_flow_horn_shunck(der[0], der[1], der[2], max_iter, max_error, horn_weight)
     elif method==OPTICAL_FLOW.LUCAS_KANADE:
         dsize=3
         der=compute_video_derivatives(video_frames, dsize)
-        return compute_one_optical_flow_lucas_kanade(der[0], der[1], der[2], kanade_win_size)
-    else:
-        return None
+        
+    all_flow = []
+    for i in range(len(der[0])):
+        if method==OPTICAL_FLOW.HORN_SHUNK:   
+            flow, _, _ = compute_one_optical_flow_horn_shunck(der[0][i], der[1][i], der[2][i], max_iter, max_error, horn_weight)
+        elif method==OPTICAL_FLOW.LUCAS_KANADE:
+            flow = compute_one_optical_flow_lucas_kanade(der[0][i], der[1][i], der[2][i], kanade_win_size)
+            
+        all_flow.append(flow)
+        
+    return all_flow
 def main():      
     # Load video frames 
     video_filepath = "assign02/input/simple/image_%07d.png" 
