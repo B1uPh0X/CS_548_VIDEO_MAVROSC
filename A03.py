@@ -95,21 +95,21 @@ def track_doggo(video_frames, first_box):
         cur_box = update_box(cur_box, keypoints_in_box,box_size=(bh,bw))
         # Draw matches
         match_frame = cv2.drawMatches(video_frames[0], keypoints, frame, kp, matches, None)
-        cv2.imshow("Matches", match_frame)
+        #cv2.imshow("Matches", match_frame)
         # Draw the current bounding box
-        draw_box(frame, cur_box, color=(255, 0, 0), thickness=2)
-        cv2.imshow("Tracking", frame)
+        #draw_box(frame, cur_box, color=(255, 0, 0), thickness=2)
+        #cv2.imshow("Tracking", frame)
         # Process subimage
         ymin, xmin, ymax, xmax = cur_box
         subimage = frame[ymin:ymax, xmin:xmax]
         slic_segments = slic(subimage, start_label=0)
         boundary_image = mark_boundaries(subimage, slic_segments)
-        cv2.imshow("Segmented", boundary_image)
+        #cv2.imshow("Segmented", boundary_image)
 
         # Update bounding box (Optional: Add transformation logic)
 
-        if cv2.waitKey(0) == 27:  # ESC to quit
-            break
+        #if cv2.waitKey(0) == 27:  # ESC to quit
+        #    break
     return bound_boxes
 def main():
     # Main function
