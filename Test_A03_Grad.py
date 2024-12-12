@@ -2,7 +2,7 @@ from General_A03 import *
 from Test_A03 import *
 import A03
 
-GRAD_DOG_LIST = UG_DOG_LIST + [1,6,12,17,19,2]
+GRAD_DOG_LIST = UG_DOG_LIST + [1,6,17,19,2]
 #GRAD_DOG_LIST = [1,6,12,17,19,2]
 
 def main():
